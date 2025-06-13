@@ -6,40 +6,46 @@
 /*   By: marshaky <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 03:53:25 by marshaky          #+#    #+#             */
-/*   Updated: 2025/05/05 04:08:17 by marshaky         ###   ########.fr       */
+/*   Updated: 2025/06/14 01:29:40 by marshaky         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void	handle_signal(int sig, siginfo_t *info, void *context)
+void	check_signal(int signal)
 {
-	static unsigned char	c = 0;
-	static int				bit = 0;
+	static int	count = 1;
+	static int	c;
+	static int	i = 0;
 
-	(void)info;
-	(void)context;
-	if (sig == SIGUSR1)
-		c |= (1 << bit);
-	bit++;
-	if (bit == 8)
+	if (signal == SIGUSR2)
+	{
+		c = c + count;
+		count *= 2;
+		i++;
+	}
+	if (signal == SIGUSR1)
+	{
+		count *= 2;
+		i++;
+	}
+	if (i >= 8)
 	{
 		write(1, &c, 1);
 		c = 0;
-		bit = 0;
+		count = 1;
+		i = 0;
 	}
 }
 
-int	main(void)
+int	main(int ac, char **av)
 {
-	struct sigaction	sa;
-
-	ft_printf("Server PID: %d\n", getpid());
-	sa.sa_sigaction = handle_signal;
-	sa.sa_flags = SA_SIGINFO;
-	sigemptyset(&sa.sa_mask);
-	sigaction(SIGUSR1, &sa, NULL);
-	sigaction(SIGUSR2, &sa, NULL);
+	(void)ac;
+	(void)av;
+	ft_putnbr_fd(getpid(), 1);
+	signal(SIGUSR2, check_signal);
+	signal(SIGUSR1, check_signal);
+	write(1, "\n", 1);
 	while (1)
 		pause();
 }

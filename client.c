@@ -6,47 +6,54 @@
 /*   By: marshaky <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 03:54:22 by marshaky          #+#    #+#             */
-/*   Updated: 2025/05/05 04:05:10 by marshaky         ###   ########.fr       */
+/*   Updated: 2025/06/14 01:31:52 by marshaky         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void	send_char(pid_t pid, unsigned char c)
+void	str_to_bit(char *str, int p_id)
 {
-	int	i;
+	int				i;
+	int				a;
+	unsigned char	n;
 
-	i = 0;
-	while (i < 8)
+	a = 0;
+	while (str[a])
 	{
-		if ((c >> i) & 1)
-			kill(pid, SIGUSR1);
-		else
-			kill(pid, SIGUSR2);
-		usleep(100);
-		i++;
+		n = str[a];
+		i = 9;
+		while (--i)
+		{
+			if ((n % 2) == 1)
+			{
+				kill(p_id, SIGUSR2);
+				usleep(100);
+			}
+			if ((n % 2) == 0)
+			{
+				kill(p_id, SIGUSR1);
+				usleep(100);
+			}
+			n = n / 2;
+		}
+		a++;
 	}
 }
 
-int	main(int argc, char **argv)
+int	main(int ac, char **av)
 {
-	pid_t	pid;
-	char	*str;
-
-	if (argc != 3)
+	if (ac == 3)
 	{
-		ft_printf("Usage: %s <server_pid> <message>\n", argv[0]);
-		return (1);
+		if (ft_atoi(av[1]) > 0)
+			str_to_bit(av[2], ft_atoi(av[1]));
+		else
+		{	
+			ft_printf("\nInvalid PID number\n");
+		}
 	}
-	pid = (pid_t)ft_atoi(argv[1]);
-	if (pid <= 0)
+	else
 	{
-		ft_printf("Error: invalid PID\n");
-		return (1);
+		ft_printf("\nWRONG ARGUMENT\n");
 	}
-	str = argv[2];
-	while (*str)
-		send_char(pid, *str++);
-	send_char(pid, '\0');
-	return (0);
 }
