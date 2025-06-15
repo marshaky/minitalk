@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marshaky <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: marshaky <marshaky@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 03:54:22 by marshaky          #+#    #+#             */
-/*   Updated: 2025/06/14 01:31:52 by marshaky         ###   ########.fr       */
+/*   Updated: 2025/06/15 17:05:09 by marshaky         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,8 @@ int	main(int ac, char **av)
 		if (ft_atoi(av[1]) > 0)
 			str_to_bit(av[2], ft_atoi(av[1]));
 		else
-		{	
-			ft_printf("\nInvalid PID number\n");
-		}
+			ft_printf("Invalid PID number\n");
 	}
 	else
-	{
-		ft_printf("\nWRONG ARGUMENT\n");
-	}
+		ft_printf("WRONG ARGUMENT\n");
 }
