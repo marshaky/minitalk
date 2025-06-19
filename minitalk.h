@@ -6,7 +6,7 @@
 /*   By: marshaky <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 03:53:51 by marshaky          #+#    #+#             */
-/*   Updated: 2025/05/13 19:51:36 by marshaky         ###   ########.fr       */
+/*   Updated: 2025/06/19 18:02:28 by marshaky         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@
 # include <signal.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include "./ft_printf/ft_printf.h"
-# include "./ft_printf/libft/libft.h"
+
+void	ft_putchar(char c);
+void	ft_putstr(char *str);
+void	ft_putnbr(int nb);
+int		ft_atoi(char *str, int *res);
 
 #endif

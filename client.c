@@ -3,53 +3,72 @@
 /*                                                        :::      ::::::::   */
 /*   client.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marshaky <marshaky@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marshaky <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 03:54:22 by marshaky          #+#    #+#             */
-/*   Updated: 2025/06/15 17:05:09 by marshaky         ###   ########.fr       */
+/*   Updated: 2025/06/19 18:02:02 by marshaky         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void	str_to_bit(char *str, int p_id)
-{
-	int				i;
-	int				a;
-	unsigned char	n;
+int	g_countbitreceived = 0;
 
-	a = 0;
-	while (str[a])
+int	ft_sendchar(int server_id, char letter)
+{
+	int		c;
+
+	c = 0;
+	while (c < 8)
 	{
-		n = str[a];
-		i = 9;
-		while (--i)
-		{
-			if ((n % 2) == 1)
-			{
-				kill(p_id, SIGUSR2);
-				usleep(100);
-			}
-			if ((n % 2) == 0)
-			{
-				kill(p_id, SIGUSR1);
-				usleep(100);
-			}
-			n = n / 2;
-		}
-		a++;
+		if (g_countbitreceived != c)
+			pause();
+		if ((letter & (1 << c)))
+			kill(server_id, SIGUSR1);
+		else
+			kill(server_id, SIGUSR2);
+		c++;
 	}
+	return (0);
 }
 
-int	main(int ac, char **av)
+void	ft_handlesig(int signum)
 {
-	if (ac == 3)
+	if (signum == SIGUSR2)
+		g_countbitreceived += 1;
+	if (g_countbitreceived > 7)
+		g_countbitreceived = 0;
+}
+
+static int	validate_args(int argc, char **argv, int *server_id)
+{
+	if (argc != 3)
 	{
-		if (ft_atoi(av[1]) > 0)
-			str_to_bit(av[2], ft_atoi(av[1]));
-		else
-			ft_printf("Invalid PID number\n");
+		ft_putstr("Invalid arguments\n");
+		return (-1);
 	}
-	else
-		ft_printf("WRONG ARGUMENT\n");
+	if (ft_atoi(argv[1], server_id) == -1 || *server_id < 1
+		|| kill(*server_id, 0) == -1)
+	{
+		ft_putstr("Invalid PID\n");
+		return (-1);
+	}
+	return (0);
+}
+
+int	main(int argc, char **argv)
+{
+	int	server_id;
+	int	i;
+
+	i = 0;
+	signal(SIGUSR1, ft_handlesig);
+	signal(SIGUSR2, ft_handlesig);
+	if (validate_args(argc, argv, &server_id) == -1)
+		return (1);
+	while (argv[2][i])
+		ft_sendchar(server_id, argv[2][i++]);
+	ft_sendchar(server_id, '\n');
+	ft_putstr("Finished!\n");
+	return (0);
 }

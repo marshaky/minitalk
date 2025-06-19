@@ -6,46 +6,56 @@
 /*   By: marshaky <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 03:53:25 by marshaky          #+#    #+#             */
-/*   Updated: 2025/06/14 01:29:40 by marshaky         ###   ########.fr       */
+/*   Updated: 2025/06/19 18:01:27 by marshaky         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void	check_signal(int signal)
+void	ft_handle_sigusr(int signum, siginfo_t *info, void *ptr)
 {
-	static int	count = 1;
-	static int	c;
-	static int	i = 0;
+	static unsigned int	c = 0;
+	static int			i = 0;
 
-	if (signal == SIGUSR2)
+	(void) ptr;
+	if (signum == SIGUSR1)
+		c |= (1 << i);
+	i++;
+	if (i == 8)
 	{
-		c = c + count;
-		count *= 2;
-		i++;
-	}
-	if (signal == SIGUSR1)
-	{
-		count *= 2;
-		i++;
-	}
-	if (i >= 8)
-	{
-		write(1, &c, 1);
+		ft_putchar(c);
 		c = 0;
-		count = 1;
 		i = 0;
 	}
+	kill(info->si_pid, SIGUSR2);
 }
 
-int	main(int ac, char **av)
+void	ft_server(void)
 {
-	(void)ac;
-	(void)av;
-	ft_putnbr_fd(getpid(), 1);
-	signal(SIGUSR2, check_signal);
-	signal(SIGUSR1, check_signal);
-	write(1, "\n", 1);
+	ft_putstr("PID: ");
+	ft_putnbr(getpid());
+	ft_putchar('\n');
+}
+
+int	main(int argc, char **argv)
+{
+	struct sigaction	sa;
+
+	(void) argv;
+	sa.sa_sigaction = &ft_handle_sigusr;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_SIGINFO;
+	if (argc != 1)
+	{
+		ft_putstr("Invalid arguments\n");
+		return (0);
+	}
+	ft_server();
 	while (1)
+	{
+		sigaction(SIGUSR1, &sa, NULL);
+		sigaction(SIGUSR2, &sa, NULL);
 		pause();
+	}
+	return (0);
 }
