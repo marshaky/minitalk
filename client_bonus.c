@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.c                                           :+:      :+:    :+:   */
+/*   client_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marshaky <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/05 03:54:22 by marshaky          #+#    #+#             */
-/*   Updated: 2025/06/24 15:49:44 by marshaky         ###   ########.fr       */
+/*   Created: 2025/06/24 15:40:53 by marshaky          #+#    #+#             */
+/*   Updated: 2025/06/24 15:46:24 by marshaky         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,15 @@
 
 int	g_countbitreceived = 0;
 
+void	ft_ack(int signum)
+{
+	if (signum == SIGUSR1)
+		g_countbitreceived = -1;
+}
+
 int	ft_sendchar(int server_id, char letter)
 {
-	int		c;
+	int	c;
 
 	c = 0;
 	while (c < 8)
@@ -62,13 +68,15 @@ int	main(int argc, char *argv[])
 	int	i;
 
 	i = 0;
-	signal(SIGUSR1, ft_handlesig);
+	signal(SIGUSR1, ft_ack);
 	signal(SIGUSR2, ft_handlesig);
 	if (validate_args(argc, argv, &server_id) == -1)
 		return (1);
 	while (argv[2][i])
 		ft_sendchar(server_id, argv[2][i++]);
-	ft_sendchar(server_id, '\n');
-	ft_putstr("Finished!\n");
+	ft_sendchar(server_id, '\0');
+	while (g_countbitreceived != -1)
+		pause();
+	ft_putstr("Server acknowledged!\n");
 	return (0);
 }

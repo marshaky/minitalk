@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.c                                           :+:      :+:    :+:   */
+/*   server_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marshaky <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/05 03:53:25 by marshaky          #+#    #+#             */
-/*   Updated: 2025/06/24 15:49:37 by marshaky         ###   ########.fr       */
+/*   Created: 2025/06/24 15:46:52 by marshaky          #+#    #+#             */
+/*   Updated: 2025/06/24 15:57:31 by marshaky         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,27 @@ void	ft_handle_sigusr(int signum, siginfo_t *info, void *ptr)
 	static unsigned int	c = 0;
 	static int			i = 0;
 
-	(void) ptr;
+	(void)ptr;
 	if (signum == SIGUSR1)
 		c |= (1 << i);
 	i++;
 	if (i == 8)
 	{
-		ft_putchar(c);
+		if (c == '\0')
+		{
+			ft_putchar('\n');
+			kill(info->si_pid, SIGUSR1);
+		}
+		else
+		{
+			ft_putchar(c);
+			kill(info->si_pid, SIGUSR2);
+		}
 		c = 0;
 		i = 0;
 	}
-	kill(info->si_pid, SIGUSR2);
+	else
+		kill(info->si_pid, SIGUSR2);
 }
 
 void	ft_server(void)
